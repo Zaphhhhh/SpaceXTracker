@@ -5,6 +5,8 @@ import '../../data/models/launch.model.dart';
 import '../widgets/build_widget_silver_grid.widget.dart';
 import '../widgets/build_widget_silver_list.widget.dart';
 
+enum SortOption { name, date }
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
 
@@ -17,6 +19,8 @@ class HomePage extends StatefulWidget {
 class _MyHomePageState extends State<HomePage> {
   late Future<List<Launch>> futureLaunches;
   bool isGridView = false;
+  SortOption _sortOption = SortOption.date;
+  List<Launch> launches = [];
 
   @override
   void initState() {
@@ -27,6 +31,19 @@ class _MyHomePageState extends State<HomePage> {
   void toggleView() {
     setState(() {
       isGridView = !isGridView;
+    });
+  }
+
+  void _sortLaunches(SortOption option) {
+    setState(() {
+      _sortOption = option;
+      if (launches.isNotEmpty) {
+        if (_sortOption == SortOption.name) {
+          launches.sort((a, b) => a.name!.compareTo(b.name!));
+        } else {
+          launches.sort((a, b) => a.dateUtc!.compareTo(b.dateUtc!));
+        }
+      }
     });
   }
 
@@ -90,7 +107,15 @@ class _MyHomePageState extends State<HomePage> {
                   ),
                 );
               } else if (snapshot.hasData) {
-                final launches = snapshot.data!;
+                if (launches.isEmpty) {
+                  launches = snapshot.data!;
+                  // Appliquer le tri initial
+                  if (_sortOption == SortOption.name) {
+                    launches.sort((a, b) => a.name!.compareTo(b.name!));
+                  } else {
+                    launches.sort((a, b) => a.dateUtc!.compareTo(b.dateUtc!));
+                  }
+                }
                 return isGridView
                     ? buildSliverGrid(launches)
                     : buildSliverList(launches);
@@ -110,22 +135,18 @@ class _MyHomePageState extends State<HomePage> {
       ),
       floatingActionButton: SpeedDial(
         animatedIcon: AnimatedIcons.menu_close,
-        backgroundColor: Colors.blue,
+        icon: Icons.sort,
+        backgroundColor: Colors.orange,
         children: [
           SpeedDialChild(
-            child: Icon(Icons.add),
-            label: 'Ajouter',
-            onTap: () => print('Ajouter'),
+            child: const Icon(Icons.sort_by_alpha),
+            label: 'Trier par nom',
+            onTap: () => _sortLaunches(SortOption.name),
           ),
           SpeedDialChild(
-            child: Icon(Icons.edit),
-            label: 'Modifier',
-            onTap: () => print('Modifier'),
-          ),
-          SpeedDialChild(
-            child: Icon(Icons.delete),
-            label: 'Supprimer',
-            onTap: () => print('Supprimer'),
+            child: const Icon(Icons.date_range),
+            label: 'Trier par date',
+            onTap: () => _sortLaunches(SortOption.date),
           ),
         ],
       ),
