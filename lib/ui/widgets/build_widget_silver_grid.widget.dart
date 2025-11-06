@@ -6,7 +6,11 @@ import '../../utils/date_formatter.dart';
 import '../pages/details.page.dart';
 import 'launch_grid_card.widget.dart';
 
-Widget buildSliverGrid(List<Launch> launches) {
+Widget buildSliverGrid(
+  List<Launch> launches,
+  Set<String> favoriteIds,
+  Function(String) onFavoriteToggle,
+) {
   return SliverPadding(
     padding: const EdgeInsets.all(16.0),
     sliver: SliverGrid(
@@ -17,11 +21,18 @@ Widget buildSliverGrid(List<Launch> launches) {
       ),
       delegate: SliverChildBuilderDelegate((context, index) {
         final launch = launches[index];
+        final isFavorite = favoriteIds.contains(launch.id);
         return InkWell(
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (contexte) => Details(launch: launch)),
+              MaterialPageRoute(
+                builder: (contexte) => Details(
+                  launch: launch,
+                  isFavorite: isFavorite,
+                  onFavoriteToggle: () => onFavoriteToggle(launch.id!),
+                ),
+              ),
             );
           },
           child: LaunchGridCard(
@@ -40,6 +51,8 @@ Widget buildSliverGrid(List<Launch> launches) {
                 return const Center(child: CircularProgressIndicator());
               },
             ),
+            isFavorite: isFavorite,
+            onFavoritePressed: () => onFavoriteToggle(launch.id!),
           ),
         );
       }, childCount: launches.length),

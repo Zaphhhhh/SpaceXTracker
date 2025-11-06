@@ -15,6 +15,8 @@ class Launch {
   final List<LaunchFailure>? failures;
   final String? rocketId;
   final LaunchLinks? links;
+  @JsonKey(ignore: true)
+  bool isFavorite = false;
 
   Launch({
     required this.id,

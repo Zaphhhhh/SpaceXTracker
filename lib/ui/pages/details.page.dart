@@ -9,8 +9,16 @@ import '../../utils/date_formatter.dart';
 
 class Details extends StatefulWidget {
   final Launch launch;
+  final bool isFavorite;
+  final VoidCallback onFavoriteToggle;
   static const String placeholderImage = 'https://via.placeholder.com/300';
-  const Details({super.key, required this.launch});
+
+  const Details({
+    super.key,
+    required this.launch,
+    required this.isFavorite,
+    required this.onFavoriteToggle,
+  });
 
   @override
   State<Details> createState() => _DetailsState();
@@ -18,6 +26,14 @@ class Details extends StatefulWidget {
 
 class _DetailsState extends State<Details> {
   bool _isGalleryExpanded = false;
+  late bool _isFavorite;
+
+  @override
+  void initState() {
+    super.initState();
+    _isFavorite = widget.isFavorite;
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<String> images = widget.launch.links?.flickr?.original ?? [];
@@ -26,12 +42,30 @@ class _DetailsState extends State<Details> {
       backgroundColor: const Color(0xFF1A1A2E),
       body: CustomScrollView(
         slivers: <Widget>[
-          const SliverAppBar(
-            backgroundColor: Color(0xFF1A1A2E),
+          SliverAppBar(
+            backgroundColor: const Color(0xFF1A1A2E),
             floating: true,
             snap: true,
             elevation: 0,
             centerTitle: true,
+            actions: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: IconButton(
+                  icon: Icon(
+                    _isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: _isFavorite ? Colors.red : Colors.white,
+                    size: 40,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isFavorite = !_isFavorite;
+                    });
+                    widget.onFavoriteToggle();
+                  },
+                ),
+              ),
+            ],
           ),
           SliverToBoxAdapter(
             child: Padding(

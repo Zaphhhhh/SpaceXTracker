@@ -18,6 +18,7 @@ dependencies:
   flutter_speed_dial: ^7.0.0
   drop_shadow: ^0.1.0
   url_launcher: ^6.3.2
+  provider: ^6.1.5+1
 
 dev_dependencies:
   flutter_test:

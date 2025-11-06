@@ -1,10 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import '../../data/models/launch.model.dart';
-import '../../utils/date_formatter.dart';
-import '../pages/details.page.dart';
-import 'launch_card.widget.dart';
+import 'package:spacex_app/data/models/launch.model.dart';
+import 'package:spacex_app/ui/pages/details.page.dart';
+import 'package:spacex_app/ui/widgets/launch_card.widget.dart';
+import 'package:spacex_app/utils/date_formatter.dart';
 
 String formatDateManually(DateTime? date) {
   if (date == null) {
@@ -32,17 +30,30 @@ String formatDateManually(DateTime? date) {
   return '$jour $nomDuMois $annee à $heure:$minute';
 }
 
-Widget buildSliverList(List<Launch> launches) {
+// MODIFIÉ : Mise à jour de la signature de la fonction
+Widget buildSliverList(
+  List<Launch> launches,
+  Set<String> favoriteIds,
+  Function(String) onFavoriteToggle,
+) {
   return SliverList(
     delegate: SliverChildBuilderDelegate((context, index) {
       final launch = launches[index];
+      final isFavorite = favoriteIds.contains(launch.id);
+
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: InkWell(
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (contexte) => Details(launch: launch)),
+              MaterialPageRoute(
+                builder: (contexte) => Details(
+                  launch: launch,
+                  isFavorite: isFavorite,
+                  onFavoriteToggle: () => onFavoriteToggle(launch.id!),
+                ),
+              ),
             );
           },
           child: LaunchCard(
@@ -57,6 +68,8 @@ Widget buildSliverList(List<Launch> launches) {
               "${launch.links?.patch?.small}",
               height: 100,
             ),
+            isFavorite: isFavorite,
+            onFavoritePressed: () => onFavoriteToggle(launch.id!),
           ),
         ),
       );

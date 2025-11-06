@@ -21,6 +21,7 @@ class _MyHomePageState extends State<HomePage> {
   bool isGridView = false;
   SortOption _sortOption = SortOption.date;
   List<Launch> launches = [];
+  final Set<String> _favoriteLaunchIds = {};
 
   @override
   void initState() {
@@ -31,6 +32,20 @@ class _MyHomePageState extends State<HomePage> {
   void toggleView() {
     setState(() {
       isGridView = !isGridView;
+    });
+  }
+
+  void _toggleFavorite(String launchId) {
+    setState(() {
+      if (_favoriteLaunchIds.contains(launchId)) {
+        _favoriteLaunchIds.remove(launchId);
+      } else {
+        _favoriteLaunchIds.add(launchId);
+      }
+      final index = launches.indexWhere((launch) => launch.id == launchId);
+      if (index != -1) {
+        launches[index].isFavorite = !launches[index].isFavorite;
+      }
     });
   }
 
@@ -109,7 +124,11 @@ class _MyHomePageState extends State<HomePage> {
               } else if (snapshot.hasData) {
                 if (launches.isEmpty) {
                   launches = snapshot.data!;
-                  // Appliquer le tri initial
+                  for (var launch in launches) {
+                    if (_favoriteLaunchIds.contains(launch.id)) {
+                      launch.isFavorite = true;
+                    }
+                  }
                   if (_sortOption == SortOption.name) {
                     launches.sort((a, b) => a.name!.compareTo(b.name!));
                   } else {
@@ -117,8 +136,16 @@ class _MyHomePageState extends State<HomePage> {
                   }
                 }
                 return isGridView
-                    ? buildSliverGrid(launches)
-                    : buildSliverList(launches);
+                    ? buildSliverGrid(
+                        launches,
+                        _favoriteLaunchIds,
+                        _toggleFavorite,
+                      )
+                    : buildSliverList(
+                        launches,
+                        _favoriteLaunchIds,
+                        _toggleFavorite,
+                      );
               } else {
                 return const SliverFillRemaining(
                   child: Center(
