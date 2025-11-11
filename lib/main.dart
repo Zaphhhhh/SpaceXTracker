@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:spacex_app/ui/pages/home_page.page.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-import 'data/api/spacex.service.dart';
-import 'data/models/launch.model.dart';
-
-void main() {
+void main() async {
+  await initializeDateFormatting('fr_FR', null);
   runApp(const MyApp());
 }
 

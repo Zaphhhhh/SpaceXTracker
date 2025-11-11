@@ -13,7 +13,7 @@ class Launch {
   final DateTime? dateUtc;
   final bool? success;
   final List<LaunchFailure>? failures;
-  final String? rocketId;
+  final String? rocket;
   final LaunchLinks? links;
   @JsonKey(ignore: true)
   bool isFavorite = false;
@@ -25,7 +25,7 @@ class Launch {
     required this.dateUtc,
     required this.success,
     required this.failures,
-    required this.rocketId,
+    required this.rocket,
     required this.links,
   });
 

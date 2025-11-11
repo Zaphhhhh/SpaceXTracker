@@ -1,9 +1,14 @@
+import 'dart:convert';
 import 'package:drop_shadow/drop_shadow.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:spacex_app/data/models/rocket.model.dart';
 import 'package:spacex_app/ui/widgets/gallery.widget.dart';
+import 'package:spacex_app/ui/widgets/launch_details_section.widget.dart';
+import 'package:spacex_app/ui/widgets/links_section.widget.dart';
+import 'package:spacex_app/ui/widgets/rocket_details_section.widget.dart';
 import 'package:spacex_app/ui/widgets/succes_bubble.widget.dart';
 import 'package:spacex_app/ui/widgets/text_wrapper.widget.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../data/models/launch.model.dart';
 import '../../utils/date_formatter.dart';
 
@@ -28,10 +33,56 @@ class _DetailsState extends State<Details> {
   bool _isGalleryExpanded = false;
   late bool _isFavorite;
 
+  Rocket? _rocket;
+  bool _isLoadingRocket = true;
+  String? _rocketError;
+
   @override
   void initState() {
     super.initState();
     _isFavorite = widget.isFavorite;
+    _fetchRocketDetails();
+  }
+
+  Future<void> _fetchRocketDetails() async {
+    final rocketId = widget.launch.rocket;
+
+    if (rocketId == null) {
+      setState(() {
+        _isLoadingRocket = false;
+        _rocketError = "Aucun ID de fusée n'est disponible pour ce lancement.";
+      });
+      return;
+    }
+
+    try {
+      final url = Uri.parse('https://api.spacexdata.com/v4/rockets/$rocketId');
+      final response = await http.get(url);
+
+      if (mounted) {
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          setState(() {
+            _rocket = Rocket.fromJson(data);
+            _isLoadingRocket = false;
+          });
+        } else {
+          setState(() {
+            _isLoadingRocket = false;
+            _rocketError =
+                "Erreur ${response.statusCode} lors de la récupération des données de la fusée.";
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingRocket = false;
+          _rocketError =
+              "Impossible de se connecter au serveur. Vérifiez votre connexion internet.";
+        });
+      }
+    }
   }
 
   @override
@@ -71,7 +122,9 @@ class _DetailsState extends State<Details> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 16),
                   Center(
                     child: SizedBox(
                       width: 300,
@@ -128,48 +181,71 @@ class _DetailsState extends State<Details> {
                     text:
                         "${widget.launch.details ?? "Aucune description disponible."}",
                   ),
-                  const SizedBox(height: 10),
-                  if (widget.launch.failures != null &&
-                      widget.launch.failures!.isNotEmpty)
-                    Text(
-                      "Raison: ${widget.launch.failures?.first?.reason ?? "Aucune raison disponible."}",
-                    ),
                   const SizedBox(height: 30),
-
-                  if (images.isNotEmpty)
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          _isGalleryExpanded = !_isGalleryExpanded;
-                        });
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              "Galerie: ",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Icon(
-                              _isGalleryExpanded
-                                  ? Icons.expand_less
-                                  : Icons.expand_more,
-                              color: Colors.white,
-                            ),
-                          ],
-                        ),
+                  LaunchDetailsSection(launch: widget.launch),
+                  const SizedBox(height: 30),
+                  if (_isLoadingRocket)
+                    const Center(child: CircularProgressIndicator())
+                  else if (_rocket != null)
+                    RocketDetailsSection(rocket: _rocket!)
+                  else if (_rocketError != null)
+                    Center(
+                      child: Text(
+                        _rocketError!,
+                        style: const TextStyle(color: Colors.white70),
+                        textAlign: TextAlign.center,
                       ),
                     ),
+                  const SizedBox(height: 30),
                 ],
               ),
             ),
           ),
+          if (images.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      _isGalleryExpanded = !_isGalleryExpanded;
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Galerie ",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Icon(
+                          _isGalleryExpanded
+                              ? Icons.expand_less
+                              : Icons.expand_more,
+                          color: Colors.white,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
           if (_isGalleryExpanded) Gallery(images: images),
+
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 30.0, 16.0, 32.0),
+              child: widget.launch.links != null
+                  ? LinksSectionWidget(links: widget.launch.links!)
+                  : const SizedBox.shrink(),
+            ),
+          ),
         ],
       ),
     );

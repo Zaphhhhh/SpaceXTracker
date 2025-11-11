@@ -17,7 +17,7 @@ Launch _$LaunchFromJson(Map<String, dynamic> json) => Launch(
   failures: (json['failures'] as List<dynamic>?)
       ?.map((e) => LaunchFailure.fromJson(e as Map<String, dynamic>))
       .toList(),
-  rocketId: json['rocketId'] as String?,
+  rocket: json['rocket'] as String?,
   links: json['links'] == null
       ? null
       : LaunchLinks.fromJson(json['links'] as Map<String, dynamic>),
@@ -30,6 +30,6 @@ Map<String, dynamic> _$LaunchToJson(Launch instance) => <String, dynamic>{
   'date_utc': instance.dateUtc?.toIso8601String(),
   'success': instance.success,
   'failures': instance.failures,
-  'rocketId': instance.rocketId,
+  'rocket': instance.rocket,
   'links': instance.links,
 };
