@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:drop_shadow/drop_shadow.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:spacex_app/data/models/rocket.model.dart';
@@ -16,7 +15,7 @@ class Details extends StatefulWidget {
   final Launch launch;
   final bool isFavorite;
   final VoidCallback onFavoriteToggle;
-  static const String placeholderImage = 'https://via.placeholder.com/300';
+  static const String placeholderAsset = 'assets/spacex_placeholder.png';
 
   const Details({
     super.key,
@@ -88,6 +87,14 @@ class _DetailsState extends State<Details> {
   @override
   Widget build(BuildContext context) {
     final List<String> images = widget.launch.links?.flickr?.original ?? [];
+    final imageUrl = widget.launch.links?.patch?.small;
+
+    final ImageProvider imageProvider;
+    if (imageUrl != null && imageUrl.isNotEmpty) {
+      imageProvider = NetworkImage(imageUrl);
+    } else {
+      imageProvider = const AssetImage(Details.placeholderAsset);
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
@@ -126,18 +133,20 @@ class _DetailsState extends State<Details> {
                 children: [
                   const SizedBox(height: 16),
                   Center(
-                    child: SizedBox(
+                    child: Container(
                       width: 300,
                       height: 300,
-                      child: DropShadow(
-                        blurRadius: 10,
-                        offset: const Offset(0, 10),
-                        opacity: 1,
-                        color: Colors.black,
-                        child: Image.network(
-                          widget.launch.links?.patch?.small ??
-                              Details.placeholderImage,
-                          height: 300,
+                      decoration: BoxDecoration(
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black38,
+                            blurRadius: 70,
+                            offset: Offset(0, 50),
+                          ),
+                        ],
+                        image: DecorationImage(
+                          image: imageProvider,
+                          fit: BoxFit.contain,
                         ),
                       ),
                     ),

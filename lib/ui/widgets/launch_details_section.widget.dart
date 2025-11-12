@@ -7,11 +7,9 @@ class LaunchDetailsSection extends StatelessWidget {
 
   const LaunchDetailsSection({super.key, required this.launch});
 
-  // Widget d'aide pour construire une ligne de détail (label + valeur)
-  // pour éviter la répétition de code et garantir un style cohérent.
   Widget _buildDetailRow(String label, String? value) {
     if (value == null || value.isEmpty) {
-      return const SizedBox.shrink(); // Ne rien afficher si la valeur est nulle ou vide
+      return const SizedBox.shrink();
     }
 
     return Padding(
@@ -36,7 +34,6 @@ class LaunchDetailsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // On construit la liste des raisons de l'échec s'il y en a
     final failureReasons = launch.failures
         ?.map((failure) => "- ${failure.reason}")
         .join('\n');

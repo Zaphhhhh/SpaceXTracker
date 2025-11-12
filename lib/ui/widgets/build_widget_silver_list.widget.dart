@@ -30,16 +30,20 @@ String formatDateManually(DateTime? date) {
   return '$jour $nomDuMois $annee à $heure:$minute';
 }
 
-// MODIFIÉ : Mise à jour de la signature de la fonction
 Widget buildSliverList(
   List<Launch> launches,
   Set<String> favoriteIds,
   Function(String) onFavoriteToggle,
 ) {
+  const String placeholderAsset = 'assets/spacex_placeholder.png';
   return SliverList(
     delegate: SliverChildBuilderDelegate((context, index) {
       final launch = launches[index];
       final isFavorite = favoriteIds.contains(launch.id);
+      final imageUrl = launch.links?.patch?.small;
+      final imageWidget = (imageUrl != null && imageUrl.isNotEmpty)
+          ? Image.network(imageUrl, height: 100)
+          : Image.asset(placeholderAsset, height: 100);
 
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -64,10 +68,7 @@ Widget buildSliverList(
             succesInfo: launch.success == true
                 ? 'Succès'
                 : (launch.success == false ? 'Échec' : 'Statut inconnu'),
-            launchImage: Image.network(
-              "${launch.links?.patch?.small}",
-              height: 100,
-            ),
+            launchImage: imageWidget,
             isFavorite: isFavorite,
             onFavoritePressed: () => onFavoriteToggle(launch.id!),
           ),

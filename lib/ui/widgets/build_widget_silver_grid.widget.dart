@@ -11,6 +11,8 @@ Widget buildSliverGrid(
   Set<String> favoriteIds,
   Function(String) onFavoriteToggle,
 ) {
+  const String placeholderAsset = 'assets/spacex_placeholder.png';
+
   return SliverPadding(
     padding: const EdgeInsets.all(16.0),
     sliver: SliverGrid(
@@ -22,6 +24,17 @@ Widget buildSliverGrid(
       delegate: SliverChildBuilderDelegate((context, index) {
         final launch = launches[index];
         final isFavorite = favoriteIds.contains(launch.id);
+        final imageUrl = launch.links?.patch?.small;
+        final imageWidget = (imageUrl != null && imageUrl.isNotEmpty)
+            ? Image.network(
+                imageUrl,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return const Center(child: CircularProgressIndicator());
+                },
+              )
+            : Image.asset(placeholderAsset, fit: BoxFit.contain);
         return InkWell(
           onTap: () {
             Navigator.push(
@@ -43,14 +56,7 @@ Widget buildSliverGrid(
             succesInfo: launch.success == true
                 ? 'Succès'
                 : (launch.success == false ? 'Échec' : 'Statut inconnu'),
-            launchImage: Image.network(
-              "${launch.links?.patch?.small}",
-              fit: BoxFit.cover,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return const Center(child: CircularProgressIndicator());
-              },
-            ),
+            launchImage: imageWidget,
             isFavorite: isFavorite,
             onFavoritePressed: () => onFavoriteToggle(launch.id!),
           ),
