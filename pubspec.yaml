@@ -21,6 +21,8 @@ dependencies:
   drop_shadow: ^0.1.0
   url_launcher: ^6.3.2
   provider: ^6.1.5+1
+  introduction_screen: ^4.0.0
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:
