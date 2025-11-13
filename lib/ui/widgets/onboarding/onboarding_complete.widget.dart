@@ -43,7 +43,17 @@ class OnboardingComplete extends StatelessWidget {
             title: "Bienvenue sur SpaceX Tracker",
             imagePath: 'assets/spacex_placeholder.png',
             description:
-                "Visualisez tous les lancements SpaceX effectués depuis bientôt 20 ans ! Choisissez entre le mode 'grille' et 'liste' selon vos préférences et profitez des filtres et de la recherche afin de trouver ce que vous cherchez.",
+                "Visualisez tous les lancements effectués depuis bientôt 20 ans.",
+          ),
+        ),
+        PageViewModel(
+          title: "",
+          bodyWidget: const OnboardingTab(
+            icon: Icons.grid_view,
+            title: "Triez les lancements",
+            imagePath: 'assets/filters.png',
+            description:
+                "Choisissez entre le mode 'grille' et 'liste' selon vos préférences et profitez des filtres et de la recherche afin de trouver ce que vous cherchez.",
           ),
         ),
         PageViewModel(
@@ -51,7 +61,7 @@ class OnboardingComplete extends StatelessWidget {
           bodyWidget: const OnboardingTab(
             icon: Icons.link,
             title: "Apprenez-en plus !",
-            imagePath: 'assets/spacex_placeholder.png',
+            imagePath: 'assets/links.png',
             description:
                 "Cliquez sur le lancements souhaité pour en afficher les moindres détails ! Vous pouvez même compléter vos recherche en cliquant sur les liens vers les articles publiés par SpaceX ou encore en regardant les photos du lancement.",
           ),
@@ -61,7 +71,7 @@ class OnboardingComplete extends StatelessWidget {
           bodyWidget: const OnboardingTab(
             icon: Icons.favorite_border,
             title: "Gardez Vos Favoris",
-            imagePath: 'assets/spacex_placeholder.png',
+            imagePath: 'assets/fav.png',
             description:
                 "Ajoutez un lancement à vos favoris pour ne plus jamais le perdre de vue.",
           ),

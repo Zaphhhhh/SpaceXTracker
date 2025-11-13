@@ -1,6 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:spacex_app/data/api/spacex.service.dart';
 import 'package:spacex_app/data/models/rocket.model.dart';
 import 'package:spacex_app/ui/widgets/gallery.widget.dart';
 import 'package:spacex_app/ui/widgets/launch_details_section.widget.dart';
@@ -55,30 +54,18 @@ class _DetailsState extends State<Details> {
     }
 
     try {
-      final url = Uri.parse('https://api.spacexdata.com/v4/rockets/$rocketId');
-      final response = await http.get(url);
-
+      final rocketData = await SpaceXService.getRocketById(rocketId);
       if (mounted) {
-        if (response.statusCode == 200) {
-          final data = json.decode(response.body);
-          setState(() {
-            _rocket = Rocket.fromJson(data);
-            _isLoadingRocket = false;
-          });
-        } else {
-          setState(() {
-            _isLoadingRocket = false;
-            _rocketError =
-                "Erreur ${response.statusCode} lors de la récupération des données de la fusée.";
-          });
-        }
+        setState(() {
+          _rocket = rocketData;
+          _isLoadingRocket = false;
+        });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
           _isLoadingRocket = false;
-          _rocketError =
-              "Impossible de se connecter au serveur. Vérifiez votre connexion internet.";
+          _rocketError = "Impossible de charger les données de la fusée : $e";
         });
       }
     }

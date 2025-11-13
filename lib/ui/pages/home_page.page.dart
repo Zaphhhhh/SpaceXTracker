@@ -29,7 +29,6 @@ class _MyHomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
   final Set<String> _favoriteLaunchIds = {};
 
-  // --- NOUVEAUX AJOUTS POUR L'ONBOARDING ---
   bool _showOnboarding = false;
 
   @override
@@ -37,12 +36,11 @@ class _MyHomePageState extends State<HomePage> {
     super.initState();
     futureLaunches = SpaceXService.getAll();
     _searchController.addListener(_filterLaunches);
-    _checkIfOnboardingNeeded(); // On vérifie au démarrage
+    _checkIfOnboardingNeeded();
   }
 
   Future<void> _checkIfOnboardingNeeded() async {
     final prefs = await SharedPreferences.getInstance();
-    // Si 'onboarding_complete' n'a jamais été défini ou est faux, on affiche l'onboarding
     if (prefs.getBool('onboarding_complete') != true) {
       setState(() {
         _showOnboarding = true;
@@ -52,14 +50,11 @@ class _MyHomePageState extends State<HomePage> {
 
   void _onOnboardingEnd() async {
     final prefs = await SharedPreferences.getInstance();
-    // On sauvegarde le fait que l'utilisateur a terminé
     await prefs.setBool('onboarding_complete', true);
-    // On met à jour l'état pour cacher le widget d'onboarding
     setState(() {
       _showOnboarding = false;
     });
   }
-  // --- FIN DES NOUVEAUX AJOUTS ---
 
   @override
   void dispose() {
@@ -73,7 +68,6 @@ class _MyHomePageState extends State<HomePage> {
     });
   }
 
-  // ... (TOUT LE RESTE DE VOTRE LOGIQUE : _toggleFavorite, _filterLaunches, etc. reste INCHANGÉ)
   void _toggleFavorite(String launchId) {
     setState(() {
       if (_favoriteLaunchIds.contains(launchId)) {
@@ -149,10 +143,8 @@ class _MyHomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
-      // On utilise un Stack pour superposer l'onboarding
       body: Stack(
         children: [
-          // 1. Votre interface principale reste ici
           CustomScrollView(
             slivers: <Widget>[
               SliverAppBar(
@@ -189,7 +181,7 @@ class _MyHomePageState extends State<HomePage> {
                       decoration: InputDecoration(
                         hintText: 'Rechercher un lancement...',
                         hintStyle: TextStyle(
-                          color: Colors.white.withOpacity(0.5),
+                          color: Colors.white.withValues(alpha: 0.5),
                         ),
                         prefixIcon: const Icon(
                           Icons.search,
@@ -286,12 +278,11 @@ class _MyHomePageState extends State<HomePage> {
             ],
           ),
 
-          // 2. On affiche l'onboarding par-dessus si nécessaire
           if (_showOnboarding) OnboardingComplete(onDone: _onOnboardingEnd),
         ],
       ),
       floatingActionButton: _showOnboarding
-          ? null // Si l'onboarding est affiché, on ne met PAS de bouton
+          ? null
           : SpeedDial(
               // Sinon, on affiche le SpeedDial
               animatedIcon: AnimatedIcons.menu_close,
